@@ -5,18 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
     <title>Hall</title>
 </head>
 <body>
+<script>
+    $(function () {
+        initHall();
+        setTimeout(reset, 60 * 1000);
+        localStorage.clear();
+    });
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
+    function initHall() {
+        $.ajax({
+            url: "hall",
+            type: "GET"
+        }).done(function (data) {
+            let places = JSON.parse(data);
+            $("#thead").html(function () {
+                let countSeatInRow = countSeatsInRow(places);
+                let head = "<th style='width: 120px;'>Ряд / Место</th>"
+                for (let i = 1; i <= countSeatInRow; i++) {
+                    head = `${head}<th>${i}</th>`;
+                }
+                return `<tr>${head}</tr>`;
+            });
+            $("#tbody").html(function () {
+                let body = "";
+                for (let i = 0; i < places.length; i++) {
+                    let numRow = places[i].row;
+                    let numSeat = places[i].seat;
+                    if (numSeat === 1) {
+                        body = `${body}<th>${numRow}</th>`;
+                    }
+                    let value = `${numRow + "-" + numSeat}`;
+                    body = `${body}<td><label><input type="checkbox" value="${value}" id="${value}" ${places[i].pick ? "checked disabled" : ""}> Ряд ${numRow}, Место ${numSeat}</label></td>`;
+                    if (i === places.length - 1 || numRow !== places[i + 1].row) {
+                        body = `<tr>${body}</tr>`;
+                    }
+                }
+                return body;
+            });
+        });
+
+    }
+
+    function reset(timeout) {
+        setTimeout(reset, timeout, timeout);
+        $.ajax({
+            url: "hall",
+            type: "GET"
+        }).done(function (data) {
+            let places = JSON.parse(data);
+            places.forEach(function (item, index, array) {
+                let checkbox = $(`#${item.row + "-" + item.seat}`);
+                let isPick = item.pick;
+                checkbox.prop({
+                    checked: isPick,
+                    disabled: isPick
+                });
+            });
+        });
+    }
+
+    function countSeatsInRow(places) {
+        let count = 0;
+        for (let i = 0; i < places.length; i++) {
+            if (places[0].row !== places[i].row) {
+                break;
+            }
+            count++;
+        }
+        return count;
+    }
+
+    function toPayment() {
+        let places = getCheckedPlaces();
+        if (places.length === 0) {
+            alert("Please select a place(s)");
+            return;
+        }
+        localStorage.setItem("places", JSON.stringify(places));
+        localStorage.setItem("price", $("#price").val());
+        window.location.href = "payment";
+    }
+
+    function getCheckedPlaces() {
+        let places = [];
+        $(":checkbox:checked:enabled").each(function (index, element) {
+            let place = element.value.split("-");
+            places.push({
+                row: place[0],
+                seat: place[1]
+            });
+        });
+        return places;
+    }
+</script>
+<div class="container">
+    <div class="row pt-3">
+        <h4>
+            Бронирование мест на сеанс.
+            <label for="price">Стоимость места: 500</label>
+            <input type="hidden" value="500" id="price">
+        </h4>
+        <table class="table table-bordered" id="table">
+            <thead id="thead"></thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+    <div class="row float-right">
+        <button type="button" class="btn btn-success" onclick="toPayment()">Оплатить</button>
+    </div>
+</div>
 </body>
 </html>

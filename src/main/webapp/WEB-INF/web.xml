@@ -4,5 +4,22 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
          http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
-
+    <servlet>
+        <servlet-name>HallServlet</servlet-name>
+        <servlet-class>ru.job4j.controller.HallServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HallServlet</servlet-name>
+        <url-pattern>/hall</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>PaymentServlet</servlet-name>
+        <servlet-class>ru.job4j.controller.PaymentServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PaymentServlet</servlet-name>
+        <url-pattern>/payment</url-pattern>
+    </servlet-mapping>
 </web-app>

@@ -12,7 +12,7 @@
         <profile>
             <id>test</id>
             <properties>
-                <db.url>jdbc:postgresql://127.0.0.1:5432/usersdb</db.url>
+                <db.url>jdbc:postgresql://127.0.0.1:5432/cinema</db.url>
                 <db.username>postgres</db.username>
                 <db.password>postgrespass</db.password>
                 <db.driver>org.postgresql.Driver</db.driver>
@@ -21,7 +21,7 @@
         <profile>
             <id>production</id>
             <properties>
-                <db.url>jdbc:postgresql://127.0.0.1:5432/usersdb</db.url>
+                <db.url>jdbc:postgresql://127.0.0.1:5432/cinema</db.url>
                 <db.username>postgres</db.username>
                 <db.password>postgrespass</db.password>
                 <db.driver>org.postgresql.Driver</db.driver>
@@ -33,7 +33,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <db.url>jdbc:postgresql://localhost/usersdb</db.url>
+                <db.url>jdbc:postgresql://localhost/cinema</db.url>
                 <db.username>postgres</db.username>
                 <db.password></db.password>
                 <db.driver>org.postgresql.Driver</db.driver>
@@ -136,18 +136,6 @@
             <artifactId>powermock-api-mockito2</artifactId>
             <version>${powermock.version}</version>
             <scope>test</scope>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/jstl/jstl -->
-        <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.taglibs/taglibs-standard-impl -->
-        <dependency>
-            <groupId>org.apache.taglibs</groupId>
-            <artifactId>taglibs-standard-impl</artifactId>
-            <version>1.2.5</version>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>

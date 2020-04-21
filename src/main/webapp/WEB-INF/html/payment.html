@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Payment</title>
+</head>
+<body>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script>
+    $(function () {
+        let placesJSON = localStorage.getItem("places");
+        if (!placesJSON) {
+            window.location.href = "./";
+        }
+        printSelectedPlaces(placesJSON);
+        $("#btnPay").click(function () {
+            if (!validateFields()) {
+                return;
+            }
+            $.ajax({
+                url: "payment",
+                type: "POST",
+                data: {
+                    "places": placesJSON,
+                    "account": JSON.stringify({
+                        "name": $("#username").val(),
+                        "phone": $("#phone").val()
+                    })
+                }
+            }).done(function (data) {
+                let message = "Successful choice. Enjoy watching!";
+                if (data === "error") {
+                    message = "Sorry. Place(s) already selected. Please select a new one.";
+                }
+                alert(message);
+                window.location.href = "./";
+            }).fail(function () {
+                alert("Что-то пошло не так (((");
+            });
+        });
+    });
+
+    function printSelectedPlaces(placesJSON) {
+        let places = JSON.parse(placesJSON);
+        let price = localStorage.getItem("price");
+        let outPick = $("#outPick");
+        outPick.text("");
+        outPick.append(`Сумма : ${price * places.length}<br>`);
+        places.forEach(function (item, index, array) {
+            outPick.append(`Вы выбрали ряд ${item.row} место ${item.seat}<br>`);
+        });
+    }
+
+    function validateFields() {
+        let phoneField = $("#phone");
+        let arr = [$("#username"), phoneField];
+        for (let i = 0; i < arr.length; i++) {
+            let elem = arr[i];
+            if (elem.val() === "") {
+                alert(`Fill in the field - ${elem.attr("title")}`);
+                return false;
+            }
+            if (elem.is(phoneField) && !/^\d+$/.test(elem.val())) {
+                alert(`The ${elem.attr("title")} field must contain numbers.`);
+                return false;
+            }
+        }
+        return true;
+    }
+</script>
+<div class="container">
+    <div class="row pt-5 justify-content-center">
+        <h2>Покупка выбранных билетов</h2>
+    </div>
+    <div class="row pt-3 justify-content-center">
+        <div class="col-4">
+            <form>
+                <div class="form-group row">
+                    <label for="username">ФИО</label>
+                    <input type="text" class="form-control" id="username" title="full name" placeholder="Full name">
+                </div>
+                <div class="form-group row">
+                    <label for="phone">Номер телефона</label>
+                    <input type="text" class="form-control" id="phone" title="phone" placeholder="Phone">
+                </div>
+                <div class="row">
+                    <button type="button" class="btn btn-success btn-block" id="btnPay">Оплатить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row pt-3" id="outPick"></div>
+</div>
+</body>
+</html>
